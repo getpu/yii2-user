@@ -10,6 +10,8 @@ use yii\web\Controller;
 use yii\filters\AccessControl;
 use getpu\user\filters\AccessRule;
 
+
+
 class AccessController extends Controller
 {
 
@@ -28,11 +30,22 @@ class AccessController extends Controller
                         'matchCallback' => function(){
                             $user = \Yii::$app->user->identity;
                             return in_array($user->username, $user->module->admins)
-                                   || \Yii::$app->user->can(\Yii::$app->requestedRoute);
+                                   || \Yii::$app->user->can($this->route());
                         },
                     ],
                 ],
             ],
         ];
+    }
+
+    private function route()
+    {
+        $route = \Yii::$app->requestedRoute;
+        $arr   = explode(DIRECTORY_SEPARATOR, $route);
+        if(is_array($arr) && count($arr) < 3 ){
+            return DIRECTORY_SEPARATOR . $route . DIRECTORY_SEPARATOR . 'index';
+        }else{
+            return DIRECTORY_SEPARATOR . $route;
+        }
     }
 }
